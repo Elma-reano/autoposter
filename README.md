@@ -1,0 +1,2 @@
+# automarimomos
+Codigo de automarimomos
