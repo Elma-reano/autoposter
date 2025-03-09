@@ -27,12 +27,10 @@ def main():
     
     MEME_FOLDER_PREFIX = "Memes/"
 
-    # Recibe un directorio desde shortcuts
     paths = [f"{MEME_FOLDER_PREFIX}{path}" for path in os.listdir(MEME_FOLDER_PREFIX)]
     
     # Checa si es más de una foto
     if len(paths) == 0:
-        
         return
     
     multiple = len(paths) > 1

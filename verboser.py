@@ -28,6 +28,24 @@ def printL(*args,
     logging.log(level, text)
     return
 
+def handle_exception(e, trace_variables):
+    _, exc_value, exc_traceback = sys.exc_info()
+    last_tb = traceback.walk_tb(exc_traceback)
+    last_frame, _ = list(last_tb)[-1]
+
+    printL(f"File: {last_frame.f_code.co_filename}", level= logging.ERROR)
+    printL(f"Line: {last_frame.f_lineno}", level= logging.ERROR)
+
+    if trace_variables:
+        printL("Trace Variables:", level= logging.ERROR)
+        local_vars = last_frame.f_locals
+
+        for var_name in trace_variables:
+            value = local_vars.get(var_name, "No encontrada")
+            printL(f"{var_name} = {value}", level= logging.ERROR)
+    return
+
+
 def verboser(name: str = "Funcion", *,
              trace_variables: list = None,
              verbose : int = VERBOSE):
@@ -39,22 +57,7 @@ def verboser(name: str = "Funcion", *,
                 printL("Done") if verbose > 0 else None
             except Exception as e:
                 printL(f"Error.\nDescription: {e}", level= logging.ERROR)
-                
-                _, exc_value, exc_traceback = sys.exc_info()
-                last_tb = traceback.walk_tb(exc_traceback)
-                last_frame, _ = list(last_tb)[-1]
-                
-                if verbose > 0:
-                    printL(f"File: {last_frame.f_code.co_filename}", level= logging.ERROR)
-                    printL(f"Line: {last_frame.f_lineno}", level= logging.ERROR)
-                
-                if trace_variables:
-                    printL("Trace Variables:", level= logging.ERROR)
-                    local_vars = last_frame.f_locals
-                    
-                    for var_name in trace_variables:
-                        value = local_vars.get(var_name, "No encontrada")
-                        printL(f"{var_name} = {value}", level= logging.ERROR)
+                handle_exception(e, trace_variables)
                 
                 return None
             return result
