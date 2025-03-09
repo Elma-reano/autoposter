@@ -8,8 +8,7 @@ Created on Wed Feb  5 09:01:58 2025
 import traceback
 import logging
 import sys
-
-# a=1
+import asyncio
 
 VERBOSE = 2
 APP_NAME = "AutoMariMomos"
@@ -45,7 +44,6 @@ def handle_exception(e, trace_variables):
             printL(f"{var_name} = {value}", level= logging.ERROR)
     return
 
-
 def verboser(name: str = "Funcion", *,
              trace_variables: list = None,
              verbose : int = VERBOSE):
@@ -57,11 +55,24 @@ def verboser(name: str = "Funcion", *,
                 printL("Done") if verbose > 0 else None
             except Exception as e:
                 printL(f"Error.\nDescription: {e}", level= logging.ERROR)
-                handle_exception(e, trace_variables)
-                
+                handle_exception(e, trace_variables)    
                 return None
             return result
-        return wrapper
+        
+        # TODO: que se imprima Starting antes de hacer la ejecución
+        async def async_wrapper(*args, **kwargs):
+            printL(f"{name}: Starting: ", end='') if verbose > 0 else None
+            try:
+                result = await function(*args, **kwargs)
+                printL("Done") if verbose > 0 else None
+            except Exception as e:
+                printL(f"Error.\nDescription: {e}", level= logging.ERROR)
+                handle_exception(e, trace_variables)
+                return None
+            return result
+        
+        return async_wrapper if asyncio.iscoroutinefunction(function) else wrapper
+        # return wrapper
     return decorator
 
 # @verboser("Funcion que da error", verbose=2, trace_variables= ['a'])
@@ -71,11 +82,24 @@ def verboser(name: str = "Funcion", *,
     
 # funcion_error()
 
-# @verboser("MiFuncion", trace_variables=["x", "y"], verbose=1)
+# @verboser("Division", trace_variables=["x", "y"], verbose=1)
 # def dividir(a, b):
 #     x = a
 #     y = b
 #     return x / y  # Generará error si b == 0
+
+# dividir(10, 2)  # Funciona bien
+# dividir(10, 0)  # Generará log con trace_variables
+
+@verboser("MiAsyncFuncion", trace_variables=["x", "y"], verbose=1)
+async def error_async(a, b):
+    x = a
+    y = b
+    await asyncio.sleep(3)
+    return x / y  # Generará error si b == 0
+
+asyncio.run(error_async(10, 2))  # Funciona bien
+asyncio.run(error_async(10, 0))  # Generará log con trace_variables
 
 # dividir(10, 2)  # Funciona bien
 # dividir(10, 0)  # Generará log con trace_variables
