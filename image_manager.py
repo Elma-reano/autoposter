@@ -6,30 +6,97 @@ Created on Thu Feb  6 17:46:55 2025
 @author: marianoluna
 """
 
-from PIL import Image
+import cv2 as cv
+import numpy as np
 from verboser import verboser
+import asyncio
 
 @verboser("Make Square")
 def make_square(image_path: str, *,
-                fill_color: tuple[int, int, int] = (0,0,0),
+                fill_color: tuple[int, int, int] = None,
                 output_path: str = None,
                 replace: bool = True):
-    
-    img = Image.open(image_path)
-    width, height = img.size
-    
-    new_size = max(width, height)
-    
-    new_img = Image.new("RGB", (new_size, new_size), fill_color)
-    
-    new_img.paste(img, ( (new_size - width) // 2, (new_size - height) // 2 ) )
-    
+
+    img = cv.imread(image_path)
+    height, width, _ = img.shape
+    side = max(height, width)
+
+    if not fill_color:
+        fill_color = cv.mean(img)[:3]
+        fill_color = tuple(map(int, fill_color))
+
+    new_img = np.full((side, side, 3), fill_color, dtype=np.uint8)
+
+    initial_x = (side - width) // 2
+    initial_y = (side - height) // 2
+
+    new_img[initial_y:initial_y + height, initial_x:initial_x + width] = img
+
     if replace:
         output_path = image_path
     else:
         if not output_path:
             raise Exception("Error, no se especificó un output_path.")
         
-    new_img.save(output_path)
+    cv.imwrite(output_path, new_img)
+    return 0
+
+async def make_square_async(image_path: str, *,
+                            fill_color: tuple[int, int, int] = None,
+                            output_path: str = None,
+                            replace: bool = True):
+    make_square(image_path, fill_color=fill_color, output_path=output_path, replace=replace)
+    return
+
+# async def main():
+#     import os
+
+#     MEME_FOLDER_PREFIX = "Memes/"
+#     paths = [f"{MEME_FOLDER_PREFIX}{path}" for path in os.listdir(MEME_FOLDER_PREFIX)]
+
+#     ejecucion = [make_square_async(path, output_path=f"{path}_square.jpeg", replace=False) for path in paths]
+#     await asyncio.gather(*ejecucion)
+#     return
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
+
+
+
+
+# from PIL import Image
+# from verboser import verboser
+
+# @verboser("Make Square")
+# def make_square(image_path: str, *,
+#                 fill_color: tuple[int, int, int] = (0,0,0),
+#                 output_path: str = None,
+#                 replace: bool = True):
     
-    return True
+#     img = Image.open(image_path)
+#     width, height = img.size
+    
+#     new_size = max(width, height)
+    
+#     new_img = Image.new("RGB", (new_size, new_size), fill_color)
+    
+#     new_img.paste(img, ( (new_size - width) // 2, (new_size - height) // 2 ) )
+    
+#     if replace:
+#         output_path = image_path
+#     else:
+#         if not output_path:
+#             raise Exception("Error, no se especificó un output_path.")
+        
+#     new_img.save(output_path)
+    
+#     return True
+
+# def main():
+#     import os
+#     images = [f"Memes/{image}" for image in os.listdir("Memes/")]
+#     for image in images:
+#         make_square(image, output_path=f"{image}_square.jpeg", replace=False)
+#     return
+
+# main()

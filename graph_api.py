@@ -7,6 +7,8 @@ Created on Wed Feb  5 12:51:34 2025
 """
 
 import requests
+import asyncio
+import aiohttp
 from verboser import verboser
 
 GRAPH_API_VERSION = "22.0"
@@ -75,11 +77,9 @@ def create_media_container(*,
         parameters['video_url'] = media_url
         parameters['media_type'] = "REELS"
     else:
-        parameters['image_url'] = media_url
-        
+        parameters['image_url'] = media_url 
     if not multiple and caption:
-        parameters['caption'] = caption
-        
+        parameters['caption'] = caption  
     if multiple:
         parameters['is_carousel_item'] = "true"
              
@@ -89,7 +89,31 @@ def create_media_container(*,
     print(response_dict)
     
     return response_dict['id']
-    
+
+@verboser("Create media container async", trace_variables= ['response'])
+async def create_media_container_async(*,
+                                    access_token: str,
+                                    media_url: str,
+                                    caption: str = None,
+                                    is_video: bool= False,
+                                    multiple: bool = False) -> str:
+    url = CREATE_MEDIA_CONTAINER_URL
+    parameters = {'access_token': access_token}
+    if is_video:
+        parameters['video_url'] = media_url
+        parameters['media_type'] = "REELS"
+    else:
+        parameters['image_url'] = media_url   
+    if not multiple and caption:
+        parameters['caption'] = caption
+    if multiple:
+        parameters['is_carousel_item'] = "true"
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, params= parameters) as response:
+            response_dict = await response.json()
+            response_dict = dict(response_dict)
+            # print(response_dict)
+            return response_dict['id']
 
 @verboser("Create carousel")
 def create_media_carousel(*,

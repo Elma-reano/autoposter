@@ -45,11 +45,12 @@ def handle_exception(e, trace_variables):
     return
 
 def verboser(name: str = "Funcion", *,
+             suffix: str = "",
              trace_variables: list = None,
              verbose : int = VERBOSE):
     def decorator(function):
         def wrapper(*args, **kwargs):
-            printL(f"{name}: Starting: ", end='') if verbose > 0 else None
+            printL(f"{name}{suffix}: Starting: ", end='') if verbose > 0 else None
             try:
                 result = function(*args, **kwargs)
                 printL("Done") if verbose > 0 else None
@@ -59,12 +60,11 @@ def verboser(name: str = "Funcion", *,
                 return None
             return result
         
-        # TODO: que se imprima Starting antes de hacer la ejecución
         async def async_wrapper(*args, **kwargs):
-            printL(f"{name}: Starting: ", end='') if verbose > 0 else None
+            printL(f"{name}{suffix}: Starting") if verbose > 0 else None
             try:
                 result = await function(*args, **kwargs)
-                printL("Done") if verbose > 0 else None
+                printL(f"{name}{suffix}: Done") if verbose > 0 else None
             except Exception as e:
                 printL(f"Error.\nDescription: {e}", level= logging.ERROR)
                 handle_exception(e, trace_variables)
@@ -91,15 +91,15 @@ def verboser(name: str = "Funcion", *,
 # dividir(10, 2)  # Funciona bien
 # dividir(10, 0)  # Generará log con trace_variables
 
-@verboser("MiAsyncFuncion", trace_variables=["x", "y"], verbose=1)
-async def error_async(a, b):
-    x = a
-    y = b
-    await asyncio.sleep(3)
-    return x / y  # Generará error si b == 0
+# @verboser("MiAsyncFuncion", trace_variables=["x", "y"], verbose=1)
+# async def error_async(a, b):
+#     x = a
+#     y = b
+#     await asyncio.sleep(3)
+#     return x / y  # Generará error si b == 0
 
-asyncio.run(error_async(10, 2))  # Funciona bien
-asyncio.run(error_async(10, 0))  # Generará log con trace_variables
+# asyncio.run(error_async(10, 2))  # Funciona bien
+# asyncio.run(error_async(10, 0))  # Generará log con trace_variables
 
 # dividir(10, 2)  # Funciona bien
 # dividir(10, 0)  # Generará log con trace_variables

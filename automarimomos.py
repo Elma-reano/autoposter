@@ -8,6 +8,7 @@ Created on Thu Feb  6 13:50:30 2025
 
 import os
 import sys
+import asyncio
 from verboser import verboser
 from image_manager import make_square
 from imgur_api import imgur_upload, imgur_delete
