@@ -172,6 +172,7 @@ tempCodeRunnerFile.py
 # ogs
 ogs*
 
+cache/*
 
 # PyPI configuration file
 .pypirc
