@@ -12,12 +12,13 @@ import aiohttp
 from verboser import verboser
 
 GRAPH_API_VERSION = "22.0"
-IG_ACC_NUMBER = "17841408452135752"
+with open("Keys/ig_acc_num.txt", "r") as file:
+    IG_ACC_NUMBER = file.read().strip()
 
 LONG_TERM_ACCESS_TOKEN_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}/oauth/access_token"
 PAGE_ACCESS_TOKEN_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}/me/accounts"
-CREATE_MEDIA_CONTAINER_URL = f"https://graph.facebook.com/v22.0/{IG_ACC_NUMBER}/media"
-PUBLISH_MEDIA_URL = f"https://graph.facebook.com/v22.0/{IG_ACC_NUMBER}/media_publish"
+CREATE_MEDIA_CONTAINER_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media"
+PUBLISH_MEDIA_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media_publish"
 
 @verboser("Get long term access token")
 def get_long_term_access_token(*,
@@ -26,9 +27,6 @@ def get_long_term_access_token(*,
                                current_access_token: str) -> str:
     
     url = LONG_TERM_ACCESS_TOKEN_URL
-    # client_id = "***REMOVED***"
-    # client_secret = "***REMOVED***"
-    # current_access_token = "***REMOVED***"
     
     
     parameters = {
@@ -155,6 +153,5 @@ def publish_media(*,
     print(response_dict)
     
     return response_dict['id']
-    
-    
+
     
