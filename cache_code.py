@@ -13,9 +13,24 @@ import asyncio
 
 def cache_handler(name: str = "Funcion",
                   expect_result: bool = True) -> None:
+    """
+    Decorator to cache the result of a function in a pickle file.
+    Args:
+        name (str, optional): The name of the function. Defaults to "Funcion".
+        expect_result (bool, optional): Checks if the function returns a value. Defaults to True.
+        TODO: Add option for a cache to be refreshed after a certain time.
+        TODO: Add option for an expected result to be a certain value or type.
+
+    Returns:
+        The result of the function, either from cache or from execution.
+    """
+    file_path = f"cache/{name}_cache.pkl"
     def decorator(function):
+        """
+        This decorator wraps the function on an async or regular wrapper depending if the 
+            function is a coroutine or not.
+        """
         def wrapper(*args, **kwargs):
-            file_path = f"cache/{name}_cache.pkl"
             if os.path.exists(file_path):
                 print(f"Cache found for {name}. Loading from cache...")
                 result = read_cache(file_path)
@@ -33,7 +48,6 @@ def cache_handler(name: str = "Funcion",
                     return None
             return result
         async def async_wrapper(*args, **kwargs):
-            file_path = f"cache/{name}_cache.pkl"
             if os.path.exists(file_path):
                 print(f"Cache found for {name}. Loading from cache...")
                 result = read_cache(file_path)

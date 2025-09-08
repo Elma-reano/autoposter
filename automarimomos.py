@@ -8,6 +8,12 @@ from graph_api import create_media_container_async, create_media_carousel, publi
 # TODO: Se podría hacer que las fotos se suban en orden?
 
 async def main():
+    """
+    This function automatically uploads images from a specified folder to Imgur, creates media containers,
+    and publishes them on instagram. It handles both single and multiple image uploads, including creating
+    a carousel for multiple images. After publishing, it deletes the images from Imgur.
+    TODO: Video support
+    """
 
     # Carga las keys y los paths de las fotos
     IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
@@ -37,6 +43,7 @@ async def main():
     )
     
     # Si son varias imágenes, las sube a un carrusel, si no, a un solo contenedor
+    # TODO caption dinámica
     media_id: str
     if multiple:
         carousel_id = create_media_carousel(
@@ -57,6 +64,7 @@ async def main():
 
 
 def get_txt_file_contents(path):
+    # TODO if the file is too big, read it in chunks
     with open(path, 'r') as file:
         contents = file.read()
     return contents
