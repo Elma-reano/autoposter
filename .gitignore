@@ -169,10 +169,13 @@ test_*
 # temp files
 tempCodeRunnerFile.py
 
-# ogs
+# I keep a copy of the original photos for testing
 ogs*
 
 cache/*
 
 # PyPI configuration file
 .pypirc
+
+# Mac Folders metadata
+.DS_Store
