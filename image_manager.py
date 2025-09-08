@@ -16,6 +16,22 @@ def make_square(image_path: str, *,
                 fill_color: tuple[int, int, int] = None,
                 output_path: str = None,
                 replace: bool = True):
+    """
+    Convierte una imagen en cuadrada, rellenando los espacios vacíos con un color
+    El color por defecto es el promedio de los colores de la imagen original.
+
+    Args:
+        image_path (str): Ruta de la imagen a convertir.
+        fill_color (tuple[int, int, int], optional): Color con el que se rellenan los espacios de la imagen. Defaults to None.
+        output_path (str, optional): Ruta de la imagen. Defaults to None.
+        replace (bool, optional): Reemplazar la imagen original con la cuadrada. Defaults to True.
+
+    Raises:
+        Exception: TODO
+
+    Returns:
+        None
+    """
 
     img = cv.imread(image_path)
     height, width, _ = img.shape
@@ -32,6 +48,8 @@ def make_square(image_path: str, *,
 
     new_img[initial_y:initial_y + height, initial_x:initial_x + width] = img
 
+    # TODO que se pueda elegir el formato de salida
+    # TODO que se pueda poner solamente un sufijo al output_path, en vez de especificarlo por completo
     if replace:
         output_path = image_path
     else:
@@ -45,22 +63,23 @@ async def make_square_async(image_path: str, *,
                             fill_color: tuple[int, int, int] = None,
                             output_path: str = None,
                             replace: bool = True):
+    """
+    Esto es un wrapper para poder llamar a la función make_square de forma asíncrona.
+    """
     make_square(image_path, fill_color=fill_color, output_path=output_path, replace=replace)
     return
 
-# async def main():
-#     import os
+if __name__ == "__main__":
+    import os
 
-#     MEME_FOLDER_PREFIX = "Memes/"
-#     paths = [f"{MEME_FOLDER_PREFIX}{path}" for path in os.listdir(MEME_FOLDER_PREFIX)]
+    async def main():
+        test_imgs_folder_path = "tests/images"
+        test_imgs_paths = [f"{test_imgs_folder_path}/{path}" for path in os.listdir(test_imgs_folder_path)]
 
-#     ejecucion = [make_square_async(path, output_path=f"{path}_square.jpeg", replace=False) for path in paths]
-#     await asyncio.gather(*ejecucion)
-#     return
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
-
+        ejecucion = [make_square_async(path, output_path=f"{path}_square", replace=False) 
+                     for path in test_imgs_paths]
+        await asyncio.gather(*ejecucion)
+    asyncio.run(main())
 
 
 
