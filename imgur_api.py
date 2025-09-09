@@ -12,8 +12,10 @@ import requests
 from verboser import verboser
 import base64
 
-IMGUR_UPLOAD_URL = lambda: "https://api.imgur.com/3/upload"
-IMGUR_DELETE_URL = lambda delete_hash: f"https://api.imgur.com/3/image/{delete_hash}"
+def IMGUR_UPLOAD_URL():
+    return "https://api.imgur.com/3/upload"
+def IMGUR_DELETE_URL(delete_hash: str):
+    return f"https://api.imgur.com/3/image/{delete_hash}"
 
 @verboser("imgur_upload")
 def imgur_upload(*, 
