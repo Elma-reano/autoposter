@@ -18,8 +18,8 @@ async def main():
     # Carga las keys y los paths de las fotos
     IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
     ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
-    MEME_FOLDER_PREFIX = "Memes/"
-    paths = [f"{MEME_FOLDER_PREFIX}{path}" for path in os.listdir(MEME_FOLDER_PREFIX) if path.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    MEDIA_FOLDER_PREFIX = "media/"
+    paths = [f"{MEDIA_FOLDER_PREFIX}{path}" for path in os.listdir(MEDIA_FOLDER_PREFIX) if path.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
     # Checa si es más de una foto
     if len(paths) == 0:
@@ -64,7 +64,7 @@ async def main():
 
 
 def get_txt_file_contents(path):
-    # TODO if the file is too big, read it in chunks
+    # TODO leer el archivo en chunks en caso de que sea muy grande
     with open(path, 'r') as file:
         contents = file.read()
     return contents
