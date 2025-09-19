@@ -46,11 +46,16 @@ async def imgur_upload_async(*,
     headers = {"Authorization": f"Client-ID {client_id}"}
     files = {"image": open(image_path, 'rb')}
     
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers= headers, data= files) as response:
-            response_dict = await response.json()
-            # print(response_dict)
-            response_dict = dict(response_dict)
+    # Try 3 times
+    for _ in range(3):
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers= headers, data= files) as response:
+                response_dict = await response.json()
+                # print(response_dict)
+                response_dict = dict(response_dict)
+                if response_dict['status'] == 200:
+                    break
+            
 
     # print(response_dict)
     image_url = response_dict['data']['link']
