@@ -2,6 +2,7 @@ import os
 import asyncio
 from cache_code import cache_handler
 from image_manager import make_square_async
+from file_operator import get_txt_file_contents
 from imgur_api import imgur_upload_async, imgur_delete_async
 from graph_api import create_media_container_async, create_media_carousel, publish_media
 
@@ -61,13 +62,6 @@ async def main():
     # Borra las imágenes de imgur
     await delete_imgur_images(imgur_delete_hashes,
                              client_id= IMGUR_CLIENT_ID)   
-
-
-def get_txt_file_contents(path):
-    # TODO leer el archivo en chunks en caso de que sea muy grande
-    with open(path, 'r') as file:
-        contents = file.read()
-    return contents
 
 @cache_handler("make_square_images", expect_result=False)
 async def square_images(paths):
