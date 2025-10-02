@@ -20,14 +20,13 @@ PAGE_ACCESS_TOKEN_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}/me/acco
 CREATE_MEDIA_CONTAINER_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media"
 PUBLISH_MEDIA_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media_publish"
 
-@verboser("Get long term access token")
-def get_long_term_access_token(*,
-                               client_id: str,
-                               client_secret: str,
-                               current_access_token: str) -> str:
+@verboser("Get new long term access token")
+def get_new_long_term_access_token(*,
+                                   client_id: str,
+                                   client_secret: str,
+                                   current_access_token: str) -> str:
     
     url = LONG_TERM_ACCESS_TOKEN_URL
-    
     
     parameters = {
         'grant_type': 'fb_exchange_token',
