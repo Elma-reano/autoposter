@@ -156,7 +156,12 @@ def publish_media(*,
         notify("Published")
         return response_dict['id']
     else:
-        notify(f"Something went wrong\n{response_dict}")
+        notif_text = '\n'.join([
+            "Something went wrong trying to publish",
+            f"Media ID {media_id}",
+            f"Response {response_dict}"
+        ])
+        notify(notif_text)
         return
 
     

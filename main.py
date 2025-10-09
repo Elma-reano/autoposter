@@ -1,10 +1,14 @@
 import os
 import asyncio
+from notificator import notify
 from cache_code import cache_handler
 from image_manager import make_square_async
 from file_operator import get_txt_file_contents
 from imgur_api import imgur_upload_async, imgur_delete_async
 from graph_api import create_media_container_async, create_media_carousel, publish_media
+
+global DEBUG
+DEBUG = False
 
 # TODO: Se podría hacer que las fotos se suban en orden?
 
@@ -30,11 +34,22 @@ async def main():
     # Encuadrada las imágenes
     await square_images(paths)
 
+    if DEBUG:
+        notif_text = "Images Squared"
+        notify(notif_text)
+
     # Sube las imágenes a imgur
     imgur_images = await upload_to_imgur(paths, IMGUR_CLIENT_ID)
     print(imgur_images)
     imgur_image_urls, imgur_delete_hashes = zip(*imgur_images)
 
+    if DEBUG:
+        notif_text = '\n'.join([
+            "Images Uploaded to Imgur",
+            f"Image URLs: {imgur_image_urls}",
+            f"Delete Hashes: {imgur_delete_hashes}"
+        ])
+        notify(notif_text)
 
     # Crea los contenedores de las imagenes en Meta
     images_container_ids = await create_media_containers(
@@ -42,6 +57,13 @@ async def main():
         access_token= ACCESS_TOKEN,
         multiple= multiple
     )
+
+    if DEBUG:
+        notif_text = '\n'.join([
+            "Containers Created",
+            f"Container IDs {images_container_ids}"
+        ])
+        notify(notif_text)
     
     # Si son varias imágenes, las sube a un carrusel, si no, a un solo contenedor
     # TODO caption dinámica
@@ -52,12 +74,24 @@ async def main():
                             access_token= ACCESS_TOKEN,
                             caption= "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #marimomos")
         media_id = carousel_id
+
+        if DEBUG:
+            notif_text = '\n'.join([
+                "Carousel Created",
+                f"Carousel ID {carousel_id}"
+            ])
+            notify(notif_text)
+
     else:
         media_id = images_container_ids[0]
 
     # Sube el contenido a marimomos
     publish_media(access_token= ACCESS_TOKEN,
                   media_id= media_id)
+    # No debug?
+    # No se hace la notificación aquí porque quiero que me notifique 
+    # siempre que se suba o se intente subir algo
+    # La notificacion está dentro de la función en graph_api.py
     
     # Borra las imágenes de imgur
     await delete_imgur_images(imgur_delete_hashes,
