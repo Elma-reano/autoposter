@@ -182,3 +182,6 @@ cache/*
 
 # Texto para mi y solo para mi
 README_personal.md
+
+# Ignore my vscode config
+.vscode/
