@@ -10,6 +10,7 @@ import requests
 import asyncio
 import aiohttp
 from verboser import verboser
+from notificator import notify
 
 GRAPH_API_VERSION = "22.0"
 with open("Keys/ig_acc_num.txt", "r") as file:
@@ -150,7 +151,12 @@ def publish_media(*,
     response_dict = dict(response.json())
     
     print(response_dict)
-    
-    return response_dict['id']
+
+    if 'id' in response_dict:
+        notify("Published")
+        return response_dict['id']
+    else:
+        notify(f"Something went wrong\n{response_dict}")
+        return
 
     
