@@ -41,6 +41,7 @@ async def main():
     # Sube las imágenes a imgur
     imgur_images = await upload_to_imgur(paths, IMGUR_CLIENT_ID)
     print(imgur_images)
+    imgur_images = [x for x in imgur_images if x is not None]
     imgur_image_urls, imgur_delete_hashes = zip(*imgur_images)
 
     if DEBUG:
@@ -72,7 +73,7 @@ async def main():
         carousel_id = create_media_carousel(
                             children= images_container_ids,
                             access_token= ACCESS_TOKEN,
-                            caption= "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #marimomos")
+                            caption= "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #momos #marimomos #shitpost #funny #humor #memesdaily")
         media_id = carousel_id
 
         if DEBUG:
@@ -129,4 +130,5 @@ async def delete_imgur_images(imgur_delete_hashes: list,
 
 
 if __name__ == "__main__":
+    notify("Starting")
     asyncio.run(main())
