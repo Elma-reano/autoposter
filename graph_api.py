@@ -8,6 +8,7 @@ Created on Wed Feb  5 12:51:34 2025
 
 import requests
 import asyncio
+import time
 import aiohttp
 from verboser import verboser
 from notificator import notify
@@ -20,6 +21,9 @@ LONG_TERM_ACCESS_TOKEN_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}/oa
 PAGE_ACCESS_TOKEN_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}/me/accounts"
 CREATE_MEDIA_CONTAINER_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media"
 PUBLISH_MEDIA_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NUMBER}/media_publish"
+
+global MAX_TRIES
+MAX_TRIES = 3
 
 @verboser("Get new long term access token")
 def get_new_long_term_access_token(*,
@@ -139,7 +143,16 @@ def create_media_carousel(*,
 @verboser("Publish media")
 def publish_media(*,
                   access_token: str,
-                  media_id: str) -> None:
+                  media_id: str,
+                  __tries: int = 1) -> None:
+    
+    if __tries > MAX_TRIES:
+        notif_text = '\n'.join([
+            "Max tries exceeded trying to publish",
+            f"Media ID {media_id}"
+        ])
+        notify(notif_text)
+        return
     
     url = PUBLISH_MEDIA_URL
     parameters = {
@@ -151,6 +164,26 @@ def publish_media(*,
     response_dict = dict(response.json())
     
     print(response_dict)
+
+    # TODO send request for media status
+    # check for it to be status FINISHED
+    
+    if 'error' in response_dict:
+        if response_dict['error']['code'] == 9007:
+            # sleep and try again in 3s
+            time.sleep(3)
+            publish_media(access_token= access_token,
+                            media_id= media_id,
+                            __tries= __tries + 1)
+        else:
+            notif_text = '\n'.join([
+                "Something went wrong trying to publish",
+                f"Media ID {media_id}",
+                f"Response {response_dict}"
+            ])
+            notify(notif_text)
+            return
+
 
     if 'id' in response_dict:
         notify("Published")
