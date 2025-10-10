@@ -182,6 +182,7 @@ cache/*
 
 # Texto para mi y solo para mi
 README_personal.md
+self_captured_errors.md
 
 # Ignore my vscode config
 .vscode/
