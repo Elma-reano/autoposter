@@ -70,7 +70,7 @@ async def main():
     # TODO caption dinámica
     media_id: str
     if multiple:
-        carousel_id = create_media_carousel(
+        carousel_id = create_carousel(
                             children= images_container_ids,
                             access_token= ACCESS_TOKEN,
                             caption= "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #momos #marimomos #shitpost #funny #humor #memesdaily")
@@ -86,9 +86,9 @@ async def main():
     else:
         media_id = images_container_ids[0]
 
-    # Sube el contenido a marimomos
-    publish_media(access_token= ACCESS_TOKEN,
-                  media_id= media_id)
+    # Sube el contenido a instagram
+    post_id = create_post(access_token= ACCESS_TOKEN,
+                          media_id= media_id)
     # No debug?
     # No se hace la notificación aquí porque quiero que me notifique 
     # siempre que se suba o se intente subir algo
@@ -98,12 +98,15 @@ async def main():
     await delete_imgur_images(imgur_delete_hashes,
                              client_id= IMGUR_CLIENT_ID)   
 
+
+# Step 1: Make images square
 @cache_handler("make_square_images", expect_result=False)
 async def square_images(paths):
     execution = [make_square_async(path) for path in paths]
     await asyncio.gather(*execution)
     return
 
+# Step 2: Upload the images to Imgur
 @cache_handler("upload_to_imgur")
 async def upload_to_imgur(img_paths: list,
                           client_id: str):
@@ -111,6 +114,7 @@ async def upload_to_imgur(img_paths: list,
                                     image_path= path) for path in img_paths]
     return await asyncio.gather(*ejecucion)
 
+# Step 3: Create media containers in Meta
 @cache_handler("create_media_containers")
 async def create_media_containers(imgur_img_url_list: list,
                                   access_token: str,
@@ -119,6 +123,22 @@ async def create_media_containers(imgur_img_url_list: list,
                                              media_url= url,
                                              multiple= multiple) for url in imgur_img_url_list]
     return await asyncio.gather(*ejecucion) 
+
+# Step 4: Create carousel if multiple images
+@cache_handler("create_carousel")
+def create_carousel(children: list,
+                    access_token: str,
+                    caption: str = None):
+    return create_media_carousel(access_token= access_token,
+                                 children= children,
+                                 caption= caption)
+
+@cache_handler("create_post")
+def create_post(access_token: str,
+                         media_id: str):
+    post_id = publish_media(access_token= access_token,
+                            media_id= media_id)
+    return post_id
 
 @cache_handler("delete_imgur_images", expect_result= False)
 async def delete_imgur_images(imgur_delete_hashes: list,

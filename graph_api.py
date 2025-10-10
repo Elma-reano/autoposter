@@ -139,7 +139,6 @@ def create_media_carousel(*,
     
     return response_dict['id']
     
-    
 @verboser("Publish media")
 def publish_media(*,
                   access_token: str,
