@@ -1,6 +1,7 @@
 import pickle as pkl
 import os
 import asyncio
+from typing import Callable as function, Any
 
 """
     Este proyecto se ejecuta en mi celular; y a veces suele detenerse la ejecución antes de que sea completada.
@@ -12,7 +13,7 @@ import asyncio
 """
 
 def cache_handler(name: str = "Funcion",
-                  expect_result: bool = True) -> None:
+                  expect_result: bool = True) -> function:
     """
     Decorator to cache the result of a function in a pickle file.
     Args:
@@ -79,7 +80,7 @@ def read_cache(file_path: str):
         return None
     
 def save_cache(file_path: str,
-               result: any) -> None:
+               result: Any) -> None:
     if result:
         try:
             with open(file_path, "wb") as file:

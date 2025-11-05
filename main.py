@@ -7,8 +7,14 @@ from file_operator import get_txt_file_contents
 from imgur_api import imgur_upload_async, imgur_delete_async
 from graph_api import create_media_container_async, create_media_carousel, publish_media
 
+
 global DEBUG
 DEBUG = False
+
+global IMGUR_CLIENT_ID, ACCESS_TOKEN, MEDIA_FOLDER_PREFIX
+IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
+ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
+MEDIA_FOLDER_PREFIX = "media/"
 
 # TODO: Se podría hacer que las fotos se suban en orden?
 
@@ -21,9 +27,7 @@ async def main():
     """
 
     # Carga las keys y los paths de las fotos
-    IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
-    ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
-    MEDIA_FOLDER_PREFIX = "media/"
+
     paths = [f"{MEDIA_FOLDER_PREFIX}{path}" for path in os.listdir(MEDIA_FOLDER_PREFIX) if path.lower().endswith(('.png', '.jpg', '.jpeg'))]
 
     # Checa si es más de una foto
@@ -39,7 +43,7 @@ async def main():
         notify(notif_text)
 
     # Sube las imágenes a imgur
-    imgur_images = await upload_to_imgur(paths, IMGUR_CLIENT_ID)
+    imgur_images: list[tuple[str, str]] = await upload_to_imgur(paths, IMGUR_CLIENT_ID)
     print(imgur_images)
     imgur_images = [x for x in imgur_images if x is not None]
     imgur_image_urls, imgur_delete_hashes = zip(*imgur_images)
@@ -109,7 +113,7 @@ async def square_images(paths):
 # Step 2: Upload the images to Imgur
 @cache_handler("upload_to_imgur")
 async def upload_to_imgur(img_paths: list,
-                          client_id: str):
+                          client_id: str) -> list[tuple[str, str]]:
     ejecucion = [imgur_upload_async(client_id= client_id,
                                     image_path= path) for path in img_paths]
     return await asyncio.gather(*ejecucion)
@@ -118,7 +122,7 @@ async def upload_to_imgur(img_paths: list,
 @cache_handler("create_media_containers")
 async def create_media_containers(imgur_img_url_list: list,
                                   access_token: str,
-                                  multiple: bool):
+                                  multiple: bool) -> list[str]:
     ejecucion = [create_media_container_async(access_token= access_token,
                                              media_url= url,
                                              multiple= multiple) for url in imgur_img_url_list]
@@ -128,7 +132,7 @@ async def create_media_containers(imgur_img_url_list: list,
 @cache_handler("create_carousel")
 def create_carousel(children: list,
                     access_token: str,
-                    caption: str = None):
+                    caption: str | None = None):
     return create_media_carousel(access_token= access_token,
                                  children= children,
                                  caption= caption)

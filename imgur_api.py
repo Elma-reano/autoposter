@@ -41,7 +41,7 @@ def imgur_upload(*,
 @verboser("imgur_upload_async")
 async def imgur_upload_async(*, 
                              client_id: str,
-                             image_path: str) -> tuple:
+                             image_path: str) -> tuple[str, str]:
     url = IMGUR_UPLOAD_URL()
     headers = {"Authorization": f"Client-ID {client_id}"}
     files = {"image": open(image_path, 'rb')}

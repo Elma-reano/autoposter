@@ -67,7 +67,7 @@ def get_ig_page_access_token(*,
 def create_media_container(*,
                            access_token: str,
                            media_url: str,
-                           caption: str = None,
+                           caption: str | None = None,
                            is_video: bool= False,
                            multiple: bool = False) -> str:
     
@@ -96,7 +96,7 @@ def create_media_container(*,
 async def create_media_container_async(*,
                                     access_token: str,
                                     media_url: str,
-                                    caption: str = None,
+                                    caption: str | None = None,
                                     is_video: bool= False,
                                     multiple: bool = False) -> str:
     url = CREATE_MEDIA_CONTAINER_URL
@@ -121,7 +121,7 @@ async def create_media_container_async(*,
 def create_media_carousel(*,
                           access_token: str,
                           children: list,
-                          caption: str = None) -> str:
+                          caption: str | None = None) -> str:
     
     url = CREATE_MEDIA_CONTAINER_URL
     parameters = {
