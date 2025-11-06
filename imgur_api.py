@@ -66,7 +66,7 @@ async def imgur_upload_async(*,
 @verboser("imgur_upload_video")
 def imgur_upload_video(*,
                        client_id: str,
-                       video_path: str) -> tuple:
+                       video_path: str) -> tuple[str, str]:
     
     url = IMGUR_UPLOAD_URL()
     headers = {
@@ -76,15 +76,25 @@ def imgur_upload_video(*,
     with open(video_path, 'rb') as file:
         video = file.read()
     
+    # data = {
+    #     "image": base64.b64encode(video).decode("ascii")
+    #     }
+
     data = {
-        "video": base64.b64encode(video).decode("ascii")
-        }
+        'type': 'file',
+        'disable_audio': '0',
+    }
+    files = [
+        ('video', open(video_path, 'rb'))
+    ]
     
-    response = requests.post(url, headers= headers, data= data)
+    response = requests.post(url, headers= headers, data= data, files= files)
     response_dict = dict(response.json())
     
     video_url = response_dict['data']['link']
     video_delete_hash = response_dict['data']['deletehash']
+
+    print(response_dict)
     
     return (video_url, video_delete_hash)
 

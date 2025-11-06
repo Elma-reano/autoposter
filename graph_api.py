@@ -143,6 +143,7 @@ def create_media_carousel(*,
 def publish_media(*,
                   access_token: str,
                   media_id: str,
+                  sleep_between_tries: int | float = 3,
                   __tries: int = 1) -> None:
     
     if __tries > MAX_TRIES:
@@ -170,7 +171,7 @@ def publish_media(*,
     if 'error' in response_dict:
         if response_dict['error']['code'] == 9007:
             # sleep and try again in 3s
-            time.sleep(3)
+            time.sleep(sleep_between_tries)
             publish_media(access_token= access_token,
                             media_id= media_id,
                             __tries= __tries + 1)
