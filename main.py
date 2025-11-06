@@ -106,14 +106,14 @@ async def main():
 
 
 # Step 1: Make images square
-@cache_handler("make_square_images", expect_result=False)
+@cache_handler(expect_result=False)
 async def square_images(paths):
     execution = [make_square_async(path) for path in paths]
     await asyncio.gather(*execution)
     return
 
 # Step 2: Upload the images to Imgur
-@cache_handler("upload_to_imgur")
+@cache_handler()
 async def upload_to_imgur(img_paths: list,
                           client_id: str) -> list[tuple[str, str]]:
     ejecucion = [imgur_upload_async(client_id= client_id,
@@ -121,7 +121,7 @@ async def upload_to_imgur(img_paths: list,
     return await asyncio.gather(*ejecucion)
 
 # Step 3: Create media containers in Meta
-@cache_handler("create_media_containers")
+@cache_handler()
 async def create_media_containers(imgur_img_url_list: list,
                                   access_token: str,
                                   multiple: bool) -> list[str]:
@@ -131,7 +131,7 @@ async def create_media_containers(imgur_img_url_list: list,
     return await asyncio.gather(*ejecucion) 
 
 # Step 4: Create carousel if multiple images
-@cache_handler("create_carousel")
+@cache_handler()
 def create_carousel(children: list,
                     access_token: str,
                     caption: str | None = None):
@@ -139,14 +139,14 @@ def create_carousel(children: list,
                                  children= children,
                                  caption= caption)
 
-@cache_handler("create_post")
+@cache_handler()
 def create_post(access_token: str,
                          media_id: str):
     post_id = publish_media(access_token= access_token,
                             media_id= media_id)
     return post_id
 
-@cache_handler("delete_imgur_images", expect_result= False)
+@cache_handler(expect_result= False)
 async def delete_imgur_images(imgur_delete_hashes: list,
                               client_id: str):
     ejecucion = [imgur_delete_async(delete_hash=hash,
