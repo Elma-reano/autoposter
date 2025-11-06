@@ -16,6 +16,8 @@ IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
 ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
 MEDIA_FOLDER_PREFIX = "media/"
 
+DEFAULT_CAPTION = "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #momos #marimomos #shitpost #funny #humor #memesdaily"
+
 # TODO: Se podría hacer que las fotos se suban en orden?
 
 async def main():
@@ -77,7 +79,7 @@ async def main():
         carousel_id = create_carousel(
                             children= images_container_ids,
                             access_token= ACCESS_TOKEN,
-                            caption= "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #momos #marimomos #shitpost #funny #humor #memesdaily")
+                            caption= DEFAULT_CAPTION)
         media_id = carousel_id
 
         if DEBUG:
