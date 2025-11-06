@@ -46,7 +46,7 @@ def handle_exception(e, trace_variables):
 
 def verboser(name: str = "Funcion", *,
              suffix: str = "",
-             trace_variables: list = None,
+             trace_variables: list | None = None,
              verbose : int = VERBOSE):
     def decorator(function):
         def wrapper(*args, **kwargs):
