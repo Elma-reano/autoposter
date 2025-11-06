@@ -5,3 +5,7 @@ Para hacerlo, uso automatizaciones de Shortcuts para obtener las imágenes desde
 ### Cachés
 En veces, mi celular detiene la ejecución del código por X razón; por lo que ahora los resultados de cada función en el main se guardan en caché y el código se ejecuta 2-3 veces, de forma que se continúa en donde se quedó.  
 Cada vez que quiero postear una tanda de memes nueva, se borra antes el caché.
+
+## Setup
+- Crea el environment e instalar dependencias
+- Crea las carpetas `cache` y `keys`

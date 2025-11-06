@@ -162,6 +162,7 @@ cython_debug/
 
 # Where the keys are stored
 Keys/*
+keys/*
 
 # test files
 test_*
@@ -172,7 +173,9 @@ tempCodeRunnerFile.py
 # I keep a copy of the original photos for testing
 ogs*
 
+# Cache folder
 cache/*
+Cache/*
 
 # PyPI configuration file
 .pypirc
