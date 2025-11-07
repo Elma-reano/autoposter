@@ -12,7 +12,10 @@ from typing import Callable as function, Any
     Si el archivo de cacheo ya existe, se carga el resultado desde ahí; si no, se ejecuta la función y se guarda el resultado en el archivo.
 """
 
-def cache_handler(expect_result: bool = True) -> function:
+DEFAULT_CACHE_FOLDER = "cache"
+
+def cache_handler(expect_result: bool = True,
+                  cache_folder: str | None = None) -> function:
     """
     Decorator to cache the result of a function in a pickle file.
     Args:
@@ -28,9 +31,13 @@ def cache_handler(expect_result: bool = True) -> function:
         This decorator wraps the function on an async or regular wrapper depending if the 
             function is a coroutine or not.
         """
+        nonlocal cache_folder
+        if cache_folder is None:
+            cache_folder = DEFAULT_CACHE_FOLDER
+
         name = function.__name__
         module = function.__module__
-        file_path = f"cache/{module}_{name}_cache.pkl"
+        file_path = f"{cache_folder}/{module}_{name}_cache.pkl"
 
         def wrapper(*args, **kwargs):
             if os.path.exists(file_path):
@@ -91,6 +98,24 @@ def save_cache(file_path: str,
             print(f"Error saving cache for {file_path}.\nDescription: {e}")
     else:
         print("No result to cache.")
+    return
+
+def delete_cache(cache_folder: str | None = None) -> None:
+    """
+    Deletes all cache files in the cache directory.
+    """
+    if cache_folder is None:
+        cache_folder = DEFAULT_CACHE_FOLDER
+    
+    assert os.path.exists(cache_folder), f"Cache folder {cache_folder} does not exist."
+
+    for file_name in os.listdir(cache_folder):
+        file_path = os.path.join(cache_folder, file_name)
+        try:
+            os.remove(file_path)
+            print(f"Deleted cache file: {file_name}")
+        except Exception as e:
+            print(f"Error deleting cache file {file_name}.\nDescription: {e}")
     return
 
 if __name__ == "__main__":
