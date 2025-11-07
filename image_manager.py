@@ -11,7 +11,7 @@ import numpy as np
 from verboser import verboser
 import asyncio
 
-@verboser("Make Square")
+@verboser()
 def make_square(image_path: str, *,
                 fill_color: tuple[int, int, int] = None,
                 output_path: str = None,
