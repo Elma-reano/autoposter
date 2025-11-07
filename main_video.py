@@ -43,7 +43,7 @@ def main():
     notify("Done")
     return
 
-@cache_handler("upload_video_to_imgur")
+@cache_handler()
 def upload_video_to_imgur(video_path: str,
                           client_id: str) -> tuple[str, str]:
     """
@@ -52,7 +52,7 @@ def upload_video_to_imgur(video_path: str,
     return imgur_upload_video(client_id= client_id,
                               video_path= video_path)
 
-@cache_handler("create_video_container")
+@cache_handler()
 def create_video_container(video_url: str,
                            access_token: str,
                            caption: str | None = None) -> str:
@@ -65,11 +65,11 @@ def create_video_container(video_url: str,
                                   is_video= True,
                                   multiple= False)
 
-@cache_handler("publish_video", expect_result=False)
+@cache_handler(expect_result=False)
 def publish_video(media_container_id: str,
                   access_token: str,
                   sleep_between_tries: int | float = 3
-                  ) -> None:
+                  ) -> str | None:
     """
     Publishes a video on Instagram and returns the media ID.
     """
@@ -77,7 +77,7 @@ def publish_video(media_container_id: str,
                          media_id= media_container_id,
                          sleep_between_tries= sleep_between_tries)
 
-@cache_handler("delete_video_from_imgur", expect_result=False)
+@cache_handler(expect_result=False)
 def delete_video_from_imgur(delete_hash: str,
                             client_id: str) -> None:
     """

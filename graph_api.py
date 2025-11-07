@@ -25,7 +25,7 @@ PUBLISH_MEDIA_URL = f"https://graph.facebook.com/v{GRAPH_API_VERSION}/{IG_ACC_NU
 global MAX_TRIES
 MAX_TRIES = 3
 
-@verboser("Get new long term access token")
+@verboser(trace_variables=['response'])
 def get_new_long_term_access_token(*,
                                    client_id: str,
                                    client_secret: str,
@@ -46,7 +46,7 @@ def get_new_long_term_access_token(*,
     
     return response_dict['access_token']
 
-@verboser("Get ig page access token")
+@verboser(trace_variables=['response'])
 def get_ig_page_access_token(*,
                              user_access_token: str) -> str:
     
@@ -63,7 +63,7 @@ def get_ig_page_access_token(*,
     return response_dict['data']['access_token']
     
 
-@verboser("Create media container")
+@verboser(trace_variables=['response'])
 def create_media_container(*,
                            access_token: str,
                            media_url: str,
@@ -92,7 +92,7 @@ def create_media_container(*,
     
     return response_dict['id']
 
-@verboser("Create media container async", trace_variables= ['response'])
+@verboser(trace_variables= ['response'])
 async def create_media_container_async(*,
                                     access_token: str,
                                     media_url: str,
@@ -117,7 +117,7 @@ async def create_media_container_async(*,
             # print(response_dict)
             return response_dict['id']
 
-@verboser("Create carousel")
+@verboser(trace_variables=['response'])
 def create_media_carousel(*,
                           access_token: str,
                           children: list,
@@ -139,12 +139,13 @@ def create_media_carousel(*,
     
     return response_dict['id']
     
-@verboser("Publish media")
+@verboser(trace_variables=['response', 'media_id'])
 def publish_media(*,
                   access_token: str,
                   media_id: str,
                   sleep_between_tries: int | float = 3,
-                  __tries: int = 1) -> None:
+                  __tries: int = 1
+                  ) -> str | None:
     
     if __tries > MAX_TRIES:
         notif_text = '\n'.join([

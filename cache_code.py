@@ -8,16 +8,17 @@ from typing import Callable as function, Any
     Es por eso que este sistema de cacheo es útil para evitar perder el progreso de las funciones que tardan mucho en ejecutarse.
     Por el momento, el cacheo no verifica que los inputs de las funciones sean los mismos, pero de momento no parece que sea necesario de implementar.
 
-    El decorador `cacher` permite cachear el resultado de una función en un archivo pickle.
+    El decorador `cache_handler` permite cachear el resultado de una función en un archivo pickle.
     Si el archivo de cacheo ya existe, se carga el resultado desde ahí; si no, se ejecuta la función y se guarda el resultado en el archivo.
 """
 
-def cache_handler(name: str = "Funcion",
-                  expect_result: bool = True) -> function:
+DEFAULT_CACHE_FOLDER = "cache"
+
+def cache_handler(expect_result: bool = True,
+                  cache_folder: str | None = None) -> function:
     """
     Decorator to cache the result of a function in a pickle file.
     Args:
-        name (str, optional): The name of the function. Defaults to "Funcion".
         expect_result (bool, optional): Checks if the function returns a value. Defaults to True.
         TODO: Add option for a cache to be refreshed after a certain time.
         TODO: Add option for an expected result to be a certain value or type.
@@ -25,12 +26,19 @@ def cache_handler(name: str = "Funcion",
     Returns:
         The result of the function, either from cache or from execution.
     """
-    file_path = f"cache/{name}_cache.pkl"
     def decorator(function):
         """
         This decorator wraps the function on an async or regular wrapper depending if the 
             function is a coroutine or not.
         """
+        nonlocal cache_folder
+        if cache_folder is None:
+            cache_folder = DEFAULT_CACHE_FOLDER
+
+        name = function.__name__
+        module = function.__module__
+        file_path = f"{cache_folder}/{module}_{name}_cache.pkl"
+
         def wrapper(*args, **kwargs):
             if os.path.exists(file_path):
                 print(f"Cache found for {name}. Loading from cache...")
@@ -48,6 +56,7 @@ def cache_handler(name: str = "Funcion",
                     print(f"Error in {name}.\nDescription: {e}")
                     return None
             return result
+        
         async def async_wrapper(*args, **kwargs):
             if os.path.exists(file_path):
                 print(f"Cache found for {name}. Loading from cache...")
@@ -91,16 +100,29 @@ def save_cache(file_path: str,
         print("No result to cache.")
     return
 
+def delete_cache(cache_folder: str | None = None) -> None:
+    """
+    Deletes all cache files in the cache directory.
+    """
+    if cache_folder is None:
+        cache_folder = DEFAULT_CACHE_FOLDER
+    
+    assert os.path.exists(cache_folder), f"Cache folder {cache_folder} does not exist."
+
+    for file_name in os.listdir(cache_folder):
+        file_path = os.path.join(cache_folder, file_name)
+        try:
+            os.remove(file_path)
+            print(f"Deleted cache file: {file_name}")
+        except Exception as e:
+            print(f"Error deleting cache file {file_name}.\nDescription: {e}")
+    return
+
 if __name__ == "__main__":
-    @cache_handler("MiFuncion")
-    def mi_funcion(a, b):
+    @cache_handler()
+    def test_function(a, b):
         return a + b
 
-    result = mi_funcion(5, 10)
+    result = test_function(5, 10)
     print(f"Resultado: {result}")
 
-
-# @verboser("Funcion que da error", verbose=2, trace_variables= ['a'])
-# def funcion_error():
-#     a = 2
-#     1/0

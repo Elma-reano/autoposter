@@ -17,7 +17,7 @@ def IMGUR_UPLOAD_URL():
 def IMGUR_DELETE_URL(delete_hash: str):
     return f"https://api.imgur.com/3/image/{delete_hash}"
 
-@verboser("imgur_upload")
+@verboser(trace_variables=['response'])
 def imgur_upload(*, 
                  client_id: str,
                  image_path: str) -> tuple:
@@ -38,7 +38,7 @@ def imgur_upload(*,
     
     return (image_url, image_delete_hash)
 
-@verboser("imgur_upload_async")
+@verboser(trace_variables=['response'])
 async def imgur_upload_async(*, 
                              client_id: str,
                              image_path: str) -> tuple[str, str]:
@@ -63,7 +63,7 @@ async def imgur_upload_async(*,
     return (image_url, image_delete_hash)
 
 
-@verboser("imgur_upload_video")
+@verboser(trace_variables=['response'])
 def imgur_upload_video(*,
                        client_id: str,
                        video_path: str) -> tuple[str, str]:
@@ -107,7 +107,7 @@ def imgur_upload_video(*,
 #      return
 
 
-@verboser("imgur_delete")
+@verboser(trace_variables=['response'])
 def imgur_delete(*,
                  client_id: str,
                  delete_hash: str) -> None:
@@ -121,7 +121,7 @@ def imgur_delete(*,
     
     return
 
-@verboser("imgur_delete_async")
+@verboser(trace_variables=['response'])
 async def imgur_delete_async(*,
                              client_id: str,
                              delete_hash: str) -> None:
