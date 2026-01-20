@@ -1,0 +1,10 @@
+/* Hello world
+this is a comment!
+*/
+
+#define glyph smileyface
+#define color blue
+
+//Display a greeting
+const message = "Hello, world!"
+alert("{message}, My first shortcut!")

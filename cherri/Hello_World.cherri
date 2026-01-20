@@ -1,0 +1,7 @@
+#define color blue
+#define glyph snake
+
+rawAction("ch.marcela.ada.Pyto.RunCodeIntent", {
+	"code": "print(\"Hello World\")"
+})
+rawAction("ch.marcela.ada.Pyto.GetScriptOutputIntent", {})

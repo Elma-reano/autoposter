@@ -1,0 +1,15 @@
+#define name Procesar Videos
+#define color blue
+#define glyph boxOutline
+
+#include 'actions/images'
+#include 'actions/documents'  
+
+@Video = rawAction("is.workflow.actions.filter.photos", {
+	"WFContentItemFilter": "",
+	"WFContentItemLimitEnabled": true,
+	"WFContentItemLimitNumber": 1,
+	"WFContentItemSortProperty": "Random"
+})
+const ExtensinDeArchivo = getImageDetail(Video, "File Extension")
+saveFile("video.{ExtensinDeArchivo}", Video)

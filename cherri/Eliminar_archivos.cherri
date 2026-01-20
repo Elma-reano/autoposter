@@ -1,0 +1,20 @@
+#define name EliminarCosasAnteriores
+#define color blue
+#define glyph paintbrush
+
+#include 'actions/documents'
+
+@FolderName = "carpetaDeMedia"
+@FolderName2 = "carpetaDeKeys"
+@FolderName3 = "carpetaDeCache"
+
+// WIP 
+// TODO corroborar que esto este bien
+
+const ContenidoDeLaCarpeta = getFolderContents(FolderName)
+deleteFiles(ContenidoDeLaCarpeta, true)
+const ContenidoDeLaCarpeta1 = getFolderContents(FolderName2)
+deleteFiles(ContenidoDeLaCarpeta1, true)
+const ContenidoDeLaCarpeta2 = getFolderContents(FolderName3)
+deleteFiles(ContenidoDeLaCarpeta2, true)
+showNotification("Archivos Eliminados")

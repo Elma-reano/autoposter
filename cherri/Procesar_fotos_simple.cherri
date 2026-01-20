@@ -1,0 +1,23 @@
+#define color blue
+#define glyph boxOutline
+
+#include 'actions/images'
+#include 'actions/documents'
+#include 'actions/photos'
+
+@Fotos = rawAction("is.workflow.actions.filter.photos", {
+	"WFContentItemFilter": "",
+	"WFContentItemLimitEnabled": true,
+	"WFContentItemLimitNumber": 10,
+	"WFContentItemSortProperty": "Random"
+})
+
+if Fotos {
+	for _ in Fotos {
+		const ImagenConvertida = convertToJPEG(RepeatItem)
+		saveFile("{RepeatIndex}.jpeg", ImagenConvertida, true)
+	}
+} else {
+	showNotification("No hay memes", Fotos)
+}
+deletePhotos(Fotos)

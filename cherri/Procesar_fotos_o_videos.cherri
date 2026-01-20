@@ -1,0 +1,73 @@
+#define name procesar_fotos_o_videos
+#define color blue
+#define glyph boxOutline
+
+#include 'actions/scripting'
+#include 'actions/images'
+
+/*
+La finalidad de este script es decidir si se procesa un batch de fotos o un video,
+si hay ambos, se elige aleatoriamente.
+Si no hay ninguno, se notifica.
+*/
+
+
+// Check if there are photos
+@Fotos = rawAction("is.workflow.actions.filter.photos", {
+	"WFContentItemFilter": "",
+	"WFContentItemLimitEnabled": true,
+	"WFContentItemLimitNumber": 10,
+	"WFContentItemSortProperty": "Random"
+})
+@HayFotos: number
+if Fotos {
+	@HayFotos = 1
+} else {
+	@HayFotos = 0
+}
+
+// Check if there are videos
+@Videos = rawAction("is.workflow.actions.filter.photos", {
+	"WFContentItemFilter": "",
+	"WFContentItemInputParameter": "SiElResultadoEs",
+	"WFContentItemLimitEnabled": true,
+	"WFContentItemLimitNumber": 10,
+	"WFContentItemSortProperty": "Random"
+})
+@HayVideo: number
+if Videos {
+	@HayVideo = 1
+} else {
+	@HayVideo = 0
+}
+
+
+@pic = "pic"
+@vid = "vid"
+@Action = "none"
+
+@NmeroAleatorio: number
+if HayFotos == 1 && HayVideo == 1 {
+	@NmeroAleatorio = randomNumber(1, 10)
+	if NmeroAleatorio > 5 {
+		@Action
+	} else {
+		@Action
+	}
+} else {
+	if HayFotos == 0 && HayVideo == 0 {
+		showNotification("No hay memes")
+	} else {
+		if HayFotos == 1 {
+			@Action = pic
+		} else {
+			@Action = vid
+		}
+	}
+}
+
+rawAction("dk.simonbs.DataJar.SetValueIntent", {
+	"keyPath": "pic_or_vid",
+	"values": "{Action}"
+})
+

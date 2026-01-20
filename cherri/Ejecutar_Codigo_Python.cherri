@@ -1,0 +1,24 @@
+#define name AutoPoster
+#define color green
+#define glyph faceGrinningSquint
+
+#include 'actions/shortcuts'
+
+run("Eliminar_archivos", nil) // Ejecutar EliminarArchivos
+run("Procesar_fotos_o_videos", nil) // Ejecutar ProcesarFotosOVideos
+run("Obtener_Keys", nil) // Ejecutar Obtener Keys
+@Texto = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+	"keyPath": "pic_or_vid"
+})
+
+if Texto == "pic" {
+	run("Procesar_fotos_simple", nil) // Ejecutar ProcesarFotos
+} else {
+	if Texto == "vid" {
+		run("Procesar_videos", nil) // Ejecutar ProcesarVideos
+	} else {
+		stop()
+	}
+}
+run("Hello World", nil) //Ejecutar HelloWorld (para que se inicialice el Pyto bien)
+const ResultadoDelAtajo1 = run("Ejecutar_Codigo_Python", nil) // Ejecutar el python

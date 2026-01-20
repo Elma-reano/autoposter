@@ -1,0 +1,25 @@
+@define name ObtenerKeys
+#define color blue
+#define glyph key
+
+#include 'actions/documents'
+
+@FolderName = "ValorArbitrario"
+
+const ContenidoDeLaCarpeta = getFolderContents(FolderName, true)
+
+for _ in ContenidoDeLaCarpeta {
+	getFileDetail(_, "File Size")
+}
+@ImgurClientID = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+	"keyPath": "imgur_client_id"
+})
+saveFile("imgur_client_id.txt", ImgurClientID, true)
+@AccessKey = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+	"keyPath": "main_fb_access_token"
+})
+saveFile("access_key.txt", AccessKey, true)
+@AccNum = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+	"keyPath": "marimomos_acc_num"
+})
+saveFile("ig_acc_num.txt", AccNum, true)

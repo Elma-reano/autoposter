@@ -1,0 +1,22 @@
+#define color green
+#define glyph faceGrinningSquint
+
+runSelf()
+const ResultadoDelAtajo = runSelf()
+const ResultadoDelAtajo2 = runSelf(ResultadoDelAtajo)
+rawAction("dk.simonbs.DataJar.GetValueIntent", {
+	"keyPath": "pic_or_vid"
+})
+const Texto = getText(Value)
+
+if Texto == "pic" {
+	run("Procesar fotos simple", Texto)
+} else {
+	if Texto == "vid" {
+		run("Procesar videos", Texto)
+	} else {
+		stop()
+	}
+}
+run("Hello World", ResultadoDelAtajo1)
+const ResultadoDelAtajo1 = run("Ejecutar AutoMariMomos Python", ResultadoDelAtajo2)

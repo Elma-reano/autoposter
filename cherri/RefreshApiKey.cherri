@@ -1,0 +1,50 @@
+#define color darkblue
+#define glyph wrench
+
+#include 'actions/settings'
+#include 'actions/scripting'
+#include 'actions/web'  
+#include 'actions/calendar'  
+//#include 'actions/sharing'  
+
+const FBExchangeToken = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+                                   "keyPath": "main_fb_access_token"
+})
+const ClientID = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+                            "keyPath": "fb_client_id"
+})
+const ClientSecret = rawAction("dk.simonbs.DataJar.GetValueIntent", {
+                                "keyPath": "fb_client_secret"
+})
+@BASE_URL = "https://graph.facebook.com/v22.0/oauth/access_token?"
+@Lista1 = list(
+	"client_id={ClientID}",
+	"client_secret={ClientSecret}",
+	"fb_exchange_token={FBExchangeToken}",
+	"grant_type=fb_exchange_token"
+
+)
+const TextoCombinado = joinText(Lista1, "&")
+const Texto = "{BASE_URL}{TextoCombinado}"
+const ContenidoDeURL = downloadURL(Texto)
+const Diccionario1 = getDictionary(ContenidoDeURL)
+//setClipboard(Diccionario1, false)
+const accessToken = getValue(Diccionario1, "access_token")
+const expiresIn = getValue(Diccionario1, "expires_in")
+rawAction("dk.simonbs.DataJar.SetValueIntent", {
+	"keyPath": "main_fb_access_token",
+	"values": "{accessToken}"
+})
+const Fecha = currentDate()
+const FechaAjustada = adjustDate(Fecha, "Add") // TODO escribir bien esto no se qp: , "{expiresIn} sec"
+const FechaAjustada1 = adjustDate(FechaAjustada, "Subtract") // TODO igual esto
+@NuevoEvento = rawAction("is.workflow.actions.addnewevent", {
+	"ShowWhenRun": false,
+	"WFCalendarDescriptor": "",
+	"WFCalendarItemAllDay": true,
+	"WFCalendarItemCalendar": "Aux",
+	"WFCalendarItemEndDate": "{FechaAjustada1}",
+	"WFCalendarItemStartDate": "{FechaAjustada1}",
+	"WFCalendarItemTitle": "Facebook_Key_Expires"
+})
+showNotification("Meta API Key Refreshed", NuevoEvento)
