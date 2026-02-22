@@ -10,11 +10,15 @@ import cv2 as cv
 import numpy as np
 from verboser import verboser
 import asyncio
+import os
+
+from cv2.typing import MatLike, Scalar
+from typing import Optional
 
 @verboser()
 def make_square(image_path: str, *,
-                fill_color: tuple[int, int, int] = None,
-                output_path: str = None,
+                fill_color: Optional[tuple[int, int, int]] = None, # type: ignore
+                output_path: Optional[str] = None,
                 replace: bool = True):
     """
     Convierte una imagen en cuadrada, rellenando los espacios vacíos con un color
@@ -33,13 +37,19 @@ def make_square(image_path: str, *,
         None
     """
 
-    img = cv.imread(image_path)
+    assert os.path.exists(image_path), f"Error: File {image_path} doesn't exist."
+
+    img: MatLike | None = cv.imread(image_path)
+    if img is None:
+        raise Exception(f"Error: Could not read image {image_path}.")
+
     height, width, _ = img.shape
     side = max(height, width)
 
-    if not fill_color:
-        fill_color = cv.mean(img)[:3]
-        fill_color = tuple(map(int, fill_color))
+    if fill_color is None:
+        # Get the mean color in the image and use it as fill color, setting the color values to int
+        fill_color: tuple[int, int, int] = cv.mean(img)[:3] # type: ignore
+        fill_color = tuple(map(int, fill_color)) # type: ignore
 
     new_img = np.full((side, side, 3), fill_color, dtype=np.uint8)
 
@@ -54,14 +64,14 @@ def make_square(image_path: str, *,
         output_path = image_path
     else:
         if not output_path:
-            raise Exception("Error, no se especificó un output_path.")
+            raise Exception("Error, no output_path specified.")
         
     cv.imwrite(output_path, new_img)
     return 0
 
 async def make_square_async(image_path: str, *,
-                            fill_color: tuple[int, int, int] = None,
-                            output_path: str = None,
+                            fill_color: Optional[tuple[int, int, int]] = None,
+                            output_path: Optional[str] = None,
                             replace: bool = True):
     """
     Esto es un wrapper para poder llamar a la función make_square de forma asíncrona.
