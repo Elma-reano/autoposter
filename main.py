@@ -20,6 +20,56 @@ DEFAULT_CAPTION = "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #m
 
 # TODO: Se podría hacer que las fotos se suban en orden?
 
+# Step 1: Make images square
+@cache_handler(expect_result=False)
+async def square_images(paths):
+    execution = [make_square_async(path) for path in paths]
+    await asyncio.gather(*execution)
+    return
+
+# Step 2: Upload the images to Imgur
+@cache_handler()
+async def upload_to_imgur(img_paths: list,
+                          client_id: str) -> list[tuple[str, str]]:
+    ejecucion = [imgur_upload_async(client_id= client_id,
+                                    image_path= path) for path in img_paths]
+    return await asyncio.gather(*ejecucion)
+
+# Step 3: Create media containers in Meta
+@cache_handler()
+async def create_media_containers(imgur_img_url_list: list,
+                                  access_token: str,
+                                  multiple: bool) -> list[str]:
+    ejecucion = [create_media_container_async(access_token= access_token,
+                                             media_url= url,
+                                             multiple= multiple) for url in imgur_img_url_list]
+    return await asyncio.gather(*ejecucion) 
+
+# Step 4: Create carousel if multiple images
+@cache_handler()
+def create_carousel(children: list,
+                    access_token: str,
+                    caption: str | None = None):
+    return create_media_carousel(access_token= access_token,
+                                 children= children,
+                                 caption= caption)
+
+@cache_handler()
+def create_post(access_token: str,
+                         media_id: str):
+    post_id = publish_media(access_token= access_token,
+                            media_id= media_id)
+    return post_id
+
+@cache_handler(expect_result= False)
+async def delete_imgur_images(imgur_delete_hashes: list,
+                              client_id: str):
+    ejecucion = [imgur_delete_async(delete_hash=hash,
+                                    client_id= client_id) for hash in imgur_delete_hashes]
+    await asyncio.gather(*ejecucion)
+    return                         
+
+
 async def main():
     """
     This function automatically uploads images from a specified folder to Imgur, creates media containers,
@@ -104,55 +154,6 @@ async def main():
     await delete_imgur_images(imgur_delete_hashes,
                              client_id= IMGUR_CLIENT_ID)   
 
-
-# Step 1: Make images square
-@cache_handler(expect_result=False)
-async def square_images(paths):
-    execution = [make_square_async(path) for path in paths]
-    await asyncio.gather(*execution)
-    return
-
-# Step 2: Upload the images to Imgur
-@cache_handler()
-async def upload_to_imgur(img_paths: list,
-                          client_id: str) -> list[tuple[str, str]]:
-    ejecucion = [imgur_upload_async(client_id= client_id,
-                                    image_path= path) for path in img_paths]
-    return await asyncio.gather(*ejecucion)
-
-# Step 3: Create media containers in Meta
-@cache_handler()
-async def create_media_containers(imgur_img_url_list: list,
-                                  access_token: str,
-                                  multiple: bool) -> list[str]:
-    ejecucion = [create_media_container_async(access_token= access_token,
-                                             media_url= url,
-                                             multiple= multiple) for url in imgur_img_url_list]
-    return await asyncio.gather(*ejecucion) 
-
-# Step 4: Create carousel if multiple images
-@cache_handler()
-def create_carousel(children: list,
-                    access_token: str,
-                    caption: str | None = None):
-    return create_media_carousel(access_token= access_token,
-                                 children= children,
-                                 caption= caption)
-
-@cache_handler()
-def create_post(access_token: str,
-                         media_id: str):
-    post_id = publish_media(access_token= access_token,
-                            media_id= media_id)
-    return post_id
-
-@cache_handler(expect_result= False)
-async def delete_imgur_images(imgur_delete_hashes: list,
-                              client_id: str):
-    ejecucion = [imgur_delete_async(delete_hash=hash,
-                                    client_id= client_id) for hash in imgur_delete_hashes]
-    await asyncio.gather(*ejecucion)
-    return                         
 
 
 if __name__ == "__main__":
