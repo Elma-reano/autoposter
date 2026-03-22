@@ -9,3 +9,6 @@ Cada vez que quiero postear una tanda de memes nueva, se borra antes el caché.
 ## Setup
 - Crea el environment e instalar dependencias
 - Crea las carpetas `cache` y `keys`
+
+## Cherri
+Es un lenguaje que permite traducción de sus scripts directo a Shortcuts. Los scripts actuales no se han testeado
