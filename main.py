@@ -4,7 +4,13 @@ from notificator import notify
 from cache_code import cache_handler
 from image_manager import make_square_async
 from file_operator import get_txt_file_contents
-from imgur_api import imgur_upload_async, imgur_delete_async
+# from imgur_api import imgur_upload_async, imgur_delete_async
+from cloudinary_api import (
+    upload_image as cloudinary_upload_image,
+    delete_image as cloudinary_delete_image,
+    upload_image_async as cloudinary_upload_image_async,
+    delete_image_async as cloudinary_delete_image_async
+    )
 from graph_api import create_media_container_async, create_media_carousel, publish_media
 
 
@@ -27,22 +33,34 @@ async def square_images(paths):
     await asyncio.gather(*execution)
     return
 
-# Step 2: Upload the images to Imgur
+# # Step 2: Upload the images to Imgur
+# @cache_handler()
+# async def upload_to_imgur(img_paths: list,
+#                           client_id: str) -> list[tuple[str, str]]:
+#     ejecucion = [imgur_upload_async(client_id= client_id,
+#                                     image_path= path) for path in img_paths]
+#     return await asyncio.gather(*ejecucion)
+
+# New Step 2: Upload the images to Cloudinary
 @cache_handler()
-async def upload_to_imgur(img_paths: list,
-                          client_id: str) -> list[tuple[str, str]]:
-    ejecucion = [imgur_upload_async(client_id= client_id,
-                                    image_path= path) for path in img_paths]
-    return await asyncio.gather(*ejecucion)
+async def upload_to_cloudinary(img_paths: list, folder: str) -> list[tuple[str, str]]:
+    sem = asyncio.Semaphore(5)  # Limita a 5 uploads simultáneos
+
+    tasks = [
+        cloudinary_upload_image_async(sem, img_path, folder)
+        for img_path in img_paths
+    ]
+    results = await asyncio.gather(*tasks)
+    return results
 
 # Step 3: Create media containers in Meta
 @cache_handler()
-async def create_media_containers(imgur_img_url_list: list,
+async def create_media_containers(cloudinary_img_url_list: list[str],
                                   access_token: str,
                                   multiple: bool) -> list[str]:
     ejecucion = [create_media_container_async(access_token= access_token,
                                              media_url= url,
-                                             multiple= multiple) for url in imgur_img_url_list]
+                                             multiple= multiple) for url in cloudinary_img_url_list]
     return await asyncio.gather(*ejecucion) 
 
 # Step 4: Create carousel if multiple images
@@ -54,6 +72,7 @@ def create_carousel(children: list,
                                  children= children,
                                  caption= caption)
 
+# Step 5: Publish the content on instagram
 @cache_handler()
 def create_post(access_token: str,
                          media_id: str):
@@ -61,21 +80,35 @@ def create_post(access_token: str,
                             media_id= media_id)
     return post_id
 
+# # Step 6: Delete the images from Imgur
+# @cache_handler(expect_result= False)
+# async def delete_imgur_images(imgur_delete_hashes: list,
+#                               client_id: str):
+#     ejecucion = [imgur_delete_async(delete_hash=hash,
+#                                     client_id= client_id) for hash in imgur_delete_hashes]
+#     await asyncio.gather(*ejecucion)
+#     return  
+
+# New Step 6: Delete the images from Cloudinary
 @cache_handler(expect_result= False)
-async def delete_imgur_images(imgur_delete_hashes: list,
-                              client_id: str):
-    ejecucion = [imgur_delete_async(delete_hash=hash,
-                                    client_id= client_id) for hash in imgur_delete_hashes]
-    await asyncio.gather(*ejecucion)
-    return                         
+async def delete_cloudinary_images(public_ids: list):
+    sem = asyncio.Semaphore(5)  # Limita a 5 deletes simultáneos
+
+    tasks = [
+        cloudinary_delete_image_async(sem, public_id)
+        for public_id in public_ids
+    ]
+    await asyncio.gather(*tasks)
+    return
+                       
 
 
 async def main():
     """
-    This function automatically uploads images from a specified folder to Imgur, creates media containers,
+    This function automatically uploads images from a specified folder to Cloudinary, creates media containers,
     and publishes them on instagram. It handles both single and multiple image uploads, including creating
-    a carousel for multiple images. After publishing, it deletes the images from Imgur.
-    TODO: Video support
+    a carousel for multiple images. After publishing, it deletes the images from Cloudinary.
+    TODO: Video support on cloudinary
     """
 
     # Carga las keys y los paths de las fotos
@@ -94,23 +127,25 @@ async def main():
         notif_text = "Images Squared"
         notify(notif_text)
 
-    # Sube las imágenes a imgur
-    imgur_images: list[tuple[str, str]] = await upload_to_imgur(paths, IMGUR_CLIENT_ID)
-    print(imgur_images)
-    imgur_images = [x for x in imgur_images if x is not None]
-    imgur_image_urls, imgur_delete_hashes = zip(*imgur_images)
+    # Sube las imágenes a cloudinary
+    cloudinary_images: list[tuple[str, str]] = await upload_to_cloudinary(paths, IMGUR_CLIENT_ID)
+    print(cloudinary_images)
+    cloudinary_images = [x for x in cloudinary_images if x is not None]
+    cloudinary_image_urls: list[str]
+    cloudinary_public_ids: list[str]
+    cloudinary_image_urls, cloudinary_public_ids = zip(*cloudinary_images) # type: ignore
 
     if DEBUG:
         notif_text = '\n'.join([
-            "Images Uploaded to Imgur",
-            f"Image URLs: {imgur_image_urls}",
-            f"Delete Hashes: {imgur_delete_hashes}"
+            "Images Uploaded to Cloudinary",
+            f"Image URLs: {cloudinary_image_urls}",
+            f"Public IDs: {cloudinary_public_ids}"
         ])
         notify(notif_text)
 
     # Crea los contenedores de las imagenes en Meta
     images_container_ids = await create_media_containers(
-        imgur_image_urls,
+        cloudinary_image_urls,
         access_token= ACCESS_TOKEN,
         multiple= multiple
     )
@@ -150,9 +185,9 @@ async def main():
     # siempre que se suba o se intente subir algo
     # La notificacion está dentro de la función en graph_api.py
     
-    # Borra las imágenes de imgur
-    await delete_imgur_images(imgur_delete_hashes,
-                             client_id= IMGUR_CLIENT_ID)   
+    # Borra las imágenes de cloudinary
+    await delete_cloudinary_images(cloudinary_public_ids)   
+
 
 
 

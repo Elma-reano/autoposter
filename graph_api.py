@@ -145,15 +145,20 @@ def publish_media(*,
                   media_id: str,
                   sleep_between_tries: int | float = 3,
                   __tries: int = 1
-                  ) -> str | None:
-    
+                  ) -> str:
+    # TODO: meterle un try y except para tener un manejo de errores mas legible
+    # code: 190, subcode: 460 -> token expired, refresh token and try again
+    # code: 9007 -> media not ready, sleep and try again
+    # code: 100 subcode: 2207076 -> media download has failed / http error 404
+
+
     if __tries > MAX_TRIES:
         notif_text = '\n'.join([
             "Max tries exceeded trying to publish",
             f"Media ID {media_id}"
         ])
         notify(notif_text)
-        return
+        raise TimeoutError(f"Max tries exceeded trying to publish media with ID {media_id}")
     
     url = PUBLISH_MEDIA_URL
     parameters = {
@@ -173,9 +178,10 @@ def publish_media(*,
         if response_dict['error']['code'] == 9007:
             # sleep and try again in 3s
             time.sleep(sleep_between_tries)
-            publish_media(access_token= access_token,
+            return publish_media(access_token= access_token,
                             media_id= media_id,
-                            __tries= __tries + 1)
+                            __tries= __tries + 1
+                        )
         else:
             notif_text = '\n'.join([
                 "Something went wrong trying to publish",
@@ -183,7 +189,7 @@ def publish_media(*,
                 f"Response {response_dict}"
             ])
             notify(notif_text)
-            return
+            raise Exception(f"Error trying to publish media with ID {media_id}. Response: {response_dict}")
 
 
     if 'id' in response_dict:
@@ -196,6 +202,6 @@ def publish_media(*,
             f"Response {response_dict}"
         ])
         notify(notif_text)
-        return
+        raise Exception(f"Error trying to publish media with ID {media_id}. Response: {response_dict}")
 
     
