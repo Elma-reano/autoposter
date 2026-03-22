@@ -2,6 +2,7 @@ import pickle as pkl
 import os
 import asyncio
 from typing import Callable as function, Any
+from functools import wraps
 
 """
     Este proyecto se ejecuta en mi celular; y a veces suele detenerse la ejecución antes de que sea completada.
@@ -39,6 +40,7 @@ def cache_handler(expect_result: bool = True,
         module = function.__module__
         file_path = f"{cache_folder}/{module}_{name}_cache.pkl"
 
+        @wraps(function)
         def wrapper(*args, **kwargs):
             if os.path.exists(file_path):
                 print(f"Cache found for {name}. Loading from cache...")
@@ -47,7 +49,7 @@ def cache_handler(expect_result: bool = True,
                 try:
                     result = function(*args, **kwargs)
                     if not expect_result and result is None:
-                        result = 1  # Default value if no result is expected
+                        result = None  # Default value if no result is expected
                     elif not expect_result and result is not None:
                         print(f"Warning: {name} returned a result when none was expected.")
                     print(f"{name}: Done")
