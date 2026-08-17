@@ -15,50 +15,21 @@ global DEBUG
 DEBUG = False
 
 # Carga las keys y los paths de las fotos
-IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
-ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
+# IMGUR_CLIENT_ID = get_txt_file_contents("Keys/imgur_client_id.txt")
+META_ACCESS_TOKEN = get_txt_file_contents("Keys/access_key.txt")
 MEDIA_FOLDER_PREFIX = "media/"
-VIDEO_PATH = f"{MEDIA_FOLDER_PREFIX}test_video.mov"
+# VIDEO_PATH = f"{MEDIA_FOLDER_PREFIX}test_video.mov"
 
 DEFAULT_CAPTION = "AutoMarimomosBot: Marimomos. Atte: AutoMarimomosBot #memes #momos #marimomos #shitpost #funny #humor #memesdaily"
 SLEEP_BEFORE_PUBLISHING = 20
 SLEEP_BETWEEN_TRIES = 2
 
-
-def main_video():
-
-    video_url, video_public_id = upload_video_to_cloudinary(video_path= VIDEO_PATH,
-                                    folder= "marimomos"
-                                    )
-
-    # video_url, video_delete_hash = upload_video_to_imgur(video_path= VIDEO_PATH,
-    #                                 client_id= IMGUR_CLIENT_ID
-    #                                 )
-    
-    container_id = create_video_container(video_url= video_url,
-                                          access_token= ACCESS_TOKEN,
-                                          caption= DEFAULT_CAPTION
-                                          )
-    
-    # Sleep before publishing to ensure that the media container is ready
-    print(f"Sleeping for {SLEEP_BEFORE_PUBLISHING} seconds before publishing...")
-    time.sleep(SLEEP_BEFORE_PUBLISHING)
-    
-    publish_video_result = publish_video(media_container_id= container_id,
-                                        access_token= ACCESS_TOKEN,
-                                        sleep_between_tries= SLEEP_BETWEEN_TRIES
-                                        )
-
-    print(f"Publish video result: {publish_video_result} ----------------------")
-    
-    if publish_video_result:
-        delete_result = delete_video_from_cloudinary(public_id= video_public_id)
-        notify("Done")
-        return
-    
-    notify("Failed to publish video. Check logs for details.")
-    # TODO: Añadir una capa de validacion de cada paso
-    return
+def get_video_path() -> str:
+    # Se supone que solamente es un video. Se tomara el primero que encuentre
+    for file in os.listdir(MEDIA_FOLDER_PREFIX):
+        if file.endswith((".mp4", ".mov")): # TODO ver si existe algun otro posible formato que el iphone pueda generar desde atajos
+            return os.path.join(MEDIA_FOLDER_PREFIX, file)
+    raise FileNotFoundError("No video file found in the media folder.")
 
 # @cache_handler()
 # def upload_video_to_imgur(video_path: str,
@@ -121,6 +92,43 @@ def delete_video_from_cloudinary(public_id: str) -> bool:
     Deletes a video from Cloudinary using the public ID.
     """
     return cloudinary_delete_video(public_id= public_id)
+
+
+
+def main_video():
+
+    video_url, video_public_id = upload_video_to_cloudinary(video_path= VIDEO_PATH,
+                                    folder= "marimomos"
+                                    )
+
+    # video_url, video_delete_hash = upload_video_to_imgur(video_path= VIDEO_PATH,
+    #                                 client_id= IMGUR_CLIENT_ID
+    #                                 )
+    
+    container_id = create_video_container(video_url= video_url,
+                                          access_token= META_ACCESS_TOKEN,
+                                          caption= DEFAULT_CAPTION
+                                          )
+    
+    # Sleep before publishing to ensure that the media container is ready
+    print(f"Sleeping for {SLEEP_BEFORE_PUBLISHING} seconds before publishing...")
+    time.sleep(SLEEP_BEFORE_PUBLISHING)
+    
+    publish_video_result = publish_video(media_container_id= container_id,
+                                        access_token= META_ACCESS_TOKEN,
+                                        sleep_between_tries= SLEEP_BETWEEN_TRIES
+                                        )
+
+    print(f"Publish video result: {publish_video_result} ----------------------")
+    
+    if publish_video_result:
+        delete_result = delete_video_from_cloudinary(public_id= video_public_id)
+        notify("Done")
+        return
+    
+    notify("Failed to publish video. Check logs for details.")
+    # TODO: Añadir una capa de validacion de cada paso
+    return
 
 
 if __name__ == "__main__":
